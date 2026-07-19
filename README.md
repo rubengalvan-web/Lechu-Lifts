@@ -1,4 +1,4 @@
-# Lechu Lifts
+# Maceta
 
 A mobile-first PWA workout tracker for a 4-week, 3-day/week full-body strength program. "Field log" / military logbook look — cream paper, olive/rust/ink palette, stencil headers, rubber-stamp "COMPLETE" animation on finishing a session.
 
@@ -17,7 +17,7 @@ Built with Vite + React + Tailwind, installable to your phone's home screen, wor
 ## Project structure
 
 ```
-lechu-lifts/
+maceta/
 ├── index.html
 ├── vite.config.js          # PWA plugin config (manifest, service worker/offline caching)
 ├── tailwind.config.js
@@ -57,18 +57,22 @@ npm run preview    # preview the production build locally
 
 ## Push to GitHub
 
-From inside the `lechu-lifts` folder:
+This project's GitHub repo is currently named `Lechu-Lifts` (from before the app was renamed to Maceta). The app's on-screen branding, package name, and PWA manifest all say "Maceta" now, but the repo name itself hasn't changed — that's a manual rename on GitHub.com if you want it (see note below).
+
+From inside the project folder:
 
 ```bash
 git init
 git add .
-git commit -m "Initial commit: Lechu Lifts"
+git commit -m "Rename app to Maceta"
 git branch -M main
-git remote add origin https://github.com/<your-username>/lechu-lifts.git
+git remote add origin https://github.com/<your-username>/Lechu-Lifts.git
 git push -u origin main
 ```
 
-(Create the empty `lechu-lifts` repo on GitHub first, without a README/gitignore, then run the above.)
+(If you're continuing in the same repo you already pushed to, skip `git init`/`remote add` — just commit and push as usual via GitHub Desktop.)
+
+**If you also want to rename the GitHub repo to `Maceta`:** go to the repo → Settings → General → Repository name → rename it. Then update `BASE` in `vite.config.js` from `"/Lechu-Lifts/"` to `"/Maceta/"` (or whatever the new repo name is) so GitHub Pages asset paths still resolve correctly.
 
 ## Deploy (so you can open it on your phone)
 
@@ -80,16 +84,16 @@ This repo already includes a GitHub Actions workflow (`.github/workflows/deploy.
 2. On GitHub.com, go to your repo → **Settings → Pages**.
 3. Under **Build and deployment → Source**, change it from "Deploy from a branch" to **"GitHub Actions"**.
 4. Push a commit (or go to the **Actions** tab and re-run the "Deploy to GitHub Pages" workflow). Once it finishes, your site is live at:
-   `https://<your-username>.github.io/Lechu-Lifts/`
+   `https://<your-username>.github.io/Lechu-Lifts/` (or `/Maceta/` if you renamed the repo — see below)
 5. Every future `git push` to `main` re-deploys automatically.
 
-Note: `vite.config.js` has `base: "/Lechu-Lifts/"` hardcoded, matching this repo's name so assets resolve correctly under the Pages subpath. If you rename the GitHub repo, update `BASE` in `vite.config.js` to match.
+Note: `vite.config.js` has `base: "/Lechu-Lifts/"` hardcoded, matching this repo's current name so assets resolve correctly under the Pages subpath. If you rename the GitHub repo, update `BASE` in `vite.config.js` to match.
 
 ### Option B: Vercel / Netlify (if you'd rather use one of those)
 
 1. Go to [vercel.com](https://vercel.com) or [netlify.com](https://netlify.com), sign in with GitHub.
-2. Import your `Lechu-Lifts` repo — framework auto-detects as Vite, build command `npm run build`, output directory `dist`.
-3. Deploy. You'll get a URL like `lechu-lifts.vercel.app`.
+2. Import your repo — framework auto-detects as Vite, build command `npm run build`, output directory `dist`.
+3. Deploy. You'll get a URL like `maceta.vercel.app`.
 
 ## Add to Home Screen (iPhone)
 

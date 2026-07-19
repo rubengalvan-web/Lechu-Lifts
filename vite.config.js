@@ -4,6 +4,9 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // Served from https://<username>.github.io/Lechu-Lifts/ via GitHub Pages,
 // so all asset/manifest paths need to be scoped under this base path.
+// NOTE: this must match your GitHub repo name exactly. The repo is still
+// named "Lechu-Lifts" — if you rename the GitHub repo to "Maceta" (or
+// anything else), update this to match, e.g. "/Maceta/".
 const BASE = "/Lechu-Lifts/";
 
 export default defineConfig({
@@ -14,8 +17,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        name: "Lechu Lifts",
-        short_name: "Lechu Lifts",
+        name: "Maceta",
+        short_name: "Maceta",
         description: "4-week full-body strength tracker — field log style workout logging.",
         theme_color: "#3E4530",
         background_color: "#EDE8DC",

@@ -41,7 +41,7 @@ function downloadCSV(history) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `lechu-lifts-history-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `maceta-history-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -202,7 +202,7 @@ export default function App() {
             {saving && <Loader2 size={14} className="animate-spin" color={COLORS.inkFaint} />}
           </div>
           <h1 className="stencil text-4xl leading-none mt-2" style={{ color: COLORS.ink }}>
-            LECHU LIFTS
+            MACETA
           </h1>
           <p className="text-xs mt-1" style={{ color: COLORS.inkFaint }}>
             4-week full-body program · 3 sessions/week

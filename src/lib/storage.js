@@ -9,7 +9,7 @@
 // out for a Supabase/Firebase-backed implementation without touching
 // App.jsx.
 
-const PREFIX = "lechu-lifts:";
+const PREFIX = "maceta:";
 
 function read(key) {
   try {
