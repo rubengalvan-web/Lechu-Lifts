@@ -72,13 +72,24 @@ git push -u origin main
 
 ## Deploy (so you can open it on your phone)
 
-**Vercel** (easiest):
-1. Go to [vercel.com](https://vercel.com), sign in with GitHub.
-2. "Add New Project" → import your `lechu-lifts` repo.
-3. Framework preset should auto-detect as Vite. Leave build command (`npm run build`) and output directory (`dist`) as default.
-4. Deploy. You'll get a URL like `lechu-lifts.vercel.app`.
+### Option A: GitHub Pages (no third-party account needed)
 
-**Netlify** works the same way — import from GitHub, build command `npm run build`, publish directory `dist`.
+This repo already includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that builds the app and publishes it to Pages automatically on every push to `main`.
+
+1. Push the repo to GitHub (see above).
+2. On GitHub.com, go to your repo → **Settings → Pages**.
+3. Under **Build and deployment → Source**, change it from "Deploy from a branch" to **"GitHub Actions"**.
+4. Push a commit (or go to the **Actions** tab and re-run the "Deploy to GitHub Pages" workflow). Once it finishes, your site is live at:
+   `https://<your-username>.github.io/Lechu-Lifts/`
+5. Every future `git push` to `main` re-deploys automatically.
+
+Note: `vite.config.js` has `base: "/Lechu-Lifts/"` hardcoded, matching this repo's name so assets resolve correctly under the Pages subpath. If you rename the GitHub repo, update `BASE` in `vite.config.js` to match.
+
+### Option B: Vercel / Netlify (if you'd rather use one of those)
+
+1. Go to [vercel.com](https://vercel.com) or [netlify.com](https://netlify.com), sign in with GitHub.
+2. Import your `Lechu-Lifts` repo — framework auto-detects as Vite, build command `npm run build`, output directory `dist`.
+3. Deploy. You'll get a URL like `lechu-lifts.vercel.app`.
 
 ## Add to Home Screen (iPhone)
 

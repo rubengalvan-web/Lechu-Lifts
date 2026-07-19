@@ -2,7 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Served from https://<username>.github.io/Lechu-Lifts/ via GitHub Pages,
+// so all asset/manifest paths need to be scoped under this base path.
+const BASE = "/Lechu-Lifts/";
+
 export default defineConfig({
+  base: BASE,
   plugins: [
     react(),
     VitePWA({
@@ -16,8 +21,8 @@ export default defineConfig({
         background_color: "#EDE8DC",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
-        scope: "/",
+        start_url: BASE,
+        scope: BASE,
         icons: [
           {
             src: "icons/icon-192.png",
