@@ -6,13 +6,21 @@ Built with Vite + React + Tailwind, installable to your phone's home screen, wor
 
 ## Features
 
+- Multiple local profiles — anyone can add their name and log their own workouts on the same device, no login required (see below)
 - Day I / II / III tabs, each with its own exercise list, sets, weight/reps inputs
 - Progress bar + set-completion tracking per day
 - In-progress session is saved automatically as you go (switch days without losing data)
 - "Log Workout" saves a session to history with total volume, then resets the day
+- Dedicated Progress view: overall volume trend plus a per-lift trend chart for every exercise, grouped by day
 - History log of past sessions, exportable as CSV
 - Installable as a PWA (Add to Home Screen on iPhone/Android), works offline
 - Workout program lives in one editable data file — no component code changes needed to tweak exercises
+
+## Profiles
+
+The first time the app loads, it asks "Who's logging?" — enter a name to create your first profile. Tap the name chip in the top-right of the header to switch profiles or add another one (e.g. if a friend wants to use the same phone/tablet to log their own sessions). Each profile's active session and history are stored under their own key in `localStorage`, completely separate from other profiles on the same device.
+
+This is local-only — there's no login and no sync between devices. Profiles are just a lightweight way to keep multiple people's logs from overwriting each other on one shared device. If you need real accounts people can log into from their own phones, see the note in "Data & privacy" below about swapping in a backend.
 
 ## Project structure
 
@@ -28,11 +36,15 @@ maceta/
 └── src/
     ├── main.jsx
     ├── index.css
-    ├── App.jsx              # UI + logic (port of the original prototype)
+    ├── App.jsx              # UI + logic (log view, profile switcher, view toggle)
     ├── data/
     │   └── program.js        # <-- Edit this to change exercises/sets/reps/days
+    ├── components/
+    │   ├── ProgressView.jsx  # Progress tab: trend charts + session history + CSV export
+    │   └── TrendChart.jsx    # Small dependency-free SVG bar chart
     └── lib/
-        └── storage.js        # localStorage persistence layer
+        ├── storage.js        # localStorage persistence layer
+        └── profiles.js       # Local profile list + "current profile" helpers
 ```
 
 ## Editing your workout program
