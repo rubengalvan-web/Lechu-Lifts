@@ -4,6 +4,7 @@ import { PROGRAM, COLORS } from "./data/program.js";
 import { storage } from "./lib/storage.js";
 import { listProfiles, saveProfiles, getCurrentProfileId, setCurrentProfileId, makeProfileId } from "./lib/profiles.js";
 import ProgressView from "./components/ProgressView.jsx";
+import { getSheetsConfig, isConfigured, buildPayload, enqueue, flushQueue } from "./lib/sheets.js";
 
 // All per-profile data (active sessions, history) lives under a key scoped
 // to that profile's id, so switching profiles switches which slice of
@@ -70,6 +71,7 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [stampVisible, setStampVisible] = useState(false);
   const [error, setError] = useState(null);
+  const [syncNote, setSyncNote] = useState("");
 
   const currentProfile = profiles.find((p) => p.id === currentProfileId) || null;
 
@@ -87,6 +89,21 @@ export default function App() {
       }
       setProfilesLoading(false);
     })();
+  }, []);
+
+  // Retry any queued Google Sheets rows on open and whenever we come back online.
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const cfg = await getSheetsConfig();
+        if (isConfigured(cfg)) await flushQueue();
+      } catch {
+        /* sync is best-effort */
+      }
+    };
+    run();
+    window.addEventListener("online", run);
+    return () => window.removeEventListener("online", run);
   }, []);
 
   async function createProfile(name) {
@@ -231,7 +248,27 @@ export default function App() {
 
     const volume = exerciseBreakdown.reduce((sum, e) => sum + e.volume, 0);
 
+    // Every completed set, kept in history so it can be sent to Google Sheets
+    // (one row per set) and shown back later.
+    const loggedSets = [];
+    day.exercises.forEach((ex) => {
+      (exercises[ex.id] || []).forEach((s, i) => {
+        if (!s.done) return;
+        const w = parseFloat(s.weight);
+        const r = parseFloat(s.reps);
+        loggedSets.push({
+          exerciseId: ex.id,
+          exercise: ex.name,
+          setNumber: i + 1,
+          weight: Number.isFinite(w) ? w : "",
+          reps: ex.timed ? s.reps : Number.isFinite(r) ? r : "",
+          volume: ex.timed ? 0 : Math.round((Number.isFinite(w) ? w : 0) * (Number.isFinite(r) ? r : 0)),
+        });
+      });
+    });
+
     const summary = {
+      id: makeProfileId(),
       date: new Date().toISOString(),
       dayId: selectedDay,
       dayLabel: day.label,
@@ -240,6 +277,7 @@ export default function App() {
       totalSets: totalCount,
       volume: Math.round(volume),
       exercises: exerciseBreakdown,
+      sets: loggedSets,
     };
 
     const nextHistory = [summary, ...history].slice(0, 200);
@@ -260,6 +298,19 @@ export default function App() {
     }
 
     setTimeout(() => setStampVisible(false), 1600);
+
+    // Best-effort push to Google Sheets (queued + retried if offline).
+    try {
+      const cfg = await getSheetsConfig();
+      if (isConfigured(cfg)) {
+        await enqueue(buildPayload(currentProfile ? currentProfile.name : "Unknown", summary));
+        const r = await flushQueue();
+        setSyncNote(r.remaining === 0 ? "Synced to Google Sheets ✓" : "Saved — Sheets sync queued, will retry.");
+        setTimeout(() => setSyncNote(""), 4000);
+      }
+    } catch {
+      setSyncNote("Saved — Sheets sync queued, will retry.");
+    }
   }
 
   function resetDay() {
@@ -441,7 +492,7 @@ export default function App() {
         </div>
 
         {view === "progress" ? (
-          <ProgressView history={history} program={PROGRAM} colors={COLORS} />
+          <ProgressView history={history} program={PROGRAM} colors={COLORS} profile={currentProfile} />
         ) : (
           <>
             {/* Day tabs */}
@@ -495,6 +546,14 @@ export default function App() {
                         <div>
                           <div className="text-sm font-semibold" style={{ color: COLORS.ink }}>
                             {ex.name}
+                            {ex.tags && ex.tags.includes("vmo") && (
+                              <span
+                                className="ml-2 align-middle text-[9px] px-1 py-0.5 tracking-wider"
+                                style={{ border: `1px solid ${COLORS.rust}`, color: COLORS.rust }}
+                              >
+                                VMO
+                              </span>
+                            )}
                           </div>
                           <div className="text-[11px]" style={{ color: COLORS.inkFaint }}>
                             {ex.note} · target {ex.reps}
@@ -581,6 +640,11 @@ export default function App() {
             {error && (
               <div className="px-5 pb-2 text-[11px]" style={{ color: COLORS.rust }}>
                 {error}
+              </div>
+            )}
+            {syncNote && (
+              <div className="px-5 pb-2 text-[11px]" style={{ color: COLORS.olive }}>
+                {syncNote}
               </div>
             )}
 

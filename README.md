@@ -113,6 +113,24 @@ Note: `vite.config.js` has `base: "/Lechu-Lifts/"` hardcoded, matching this repo
 2. Tap the Share icon → **Add to Home Screen**.
 3. Launch it from the home screen icon — it opens full-screen like a native app and works offline for logging (data syncs to history once you're back online, though since storage is local-only, offline logging always works regardless of connection).
 
+## Google Sheets sync (optional)
+
+Every logged workout can be appended to a Google Sheet. It's one-way (app → Sheet), uses a small Google Apps Script web app, and needs no Google Cloud project.
+
+1. Create a blank Google Sheet. Open **Extensions → Apps Script**.
+2. Replace the contents of `Code.gs` with `google-apps-script/Code.gs` from this repo, and change `TOKEN` to a long random string.
+3. **Deploy → New deployment → Web app.** Execute as: **Me**. Who has access: **Anyone**. Deploy, authorize when prompted, and copy the URL ending in `/exec`.
+4. In Maceta, open **Progress → Google Sheets Sync**, paste the URL and the same token, and tap **Sync all history** (backfills what you've already logged). New workouts then sync automatically on **Log Workout**; if you're offline they queue and retry.
+
+If you edit the script later, redeploy via **Deploy → Manage deployments → Edit → New version**.
+
+Columns (tabs and headers are created automatically):
+
+- **Sessions:** `session_id, logged_at, date, profile, day, day_title, sets_completed, total_sets, total_volume_lb`
+- **Sets:** `session_id, logged_at, date, profile, day, exercise_id, exercise, set_number, weight_lb, reps, volume_lb`
+
+The URL and token live in your phone's localStorage, not in the repo. Anyone with both could write to your Sheet, so don't share them.
+
 ## Data & privacy
 
 Everything is stored locally in your phone's browser (`localStorage`) — nothing leaves your device, no account needed. This also means: clearing Safari's site data for this app, or switching phones, will reset your history. If you want cross-device sync later, swap out `src/lib/storage.js` for a Supabase- or Firebase-backed version; `App.jsx` doesn't need to change since it only calls `storage.get/set/delete`.

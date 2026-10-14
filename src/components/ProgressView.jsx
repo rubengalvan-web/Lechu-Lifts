@@ -1,6 +1,7 @@
 import React from "react";
 import { Download } from "lucide-react";
 import TrendChart from "./TrendChart.jsx";
+import SheetsSync from "./SheetsSync.jsx";
 
 function formatShortDate(iso) {
   return new Date(iso).toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
@@ -32,7 +33,7 @@ function downloadCSV(history) {
   URL.revokeObjectURL(url);
 }
 
-export default function ProgressView({ history, program, colors }) {
+export default function ProgressView({ history, program, colors, profile }) {
   // history is stored newest-first; charts read left-to-right oldest->newest.
   const chronological = [...history].reverse();
   const overallPoints = chronological.slice(-8).map((h) => ({
@@ -127,6 +128,8 @@ export default function ProgressView({ history, program, colors }) {
           </div>
         )}
       </div>
+
+      <SheetsSync history={history} profile={profile} colors={colors} />
     </div>
   );
 }
