@@ -55,7 +55,7 @@ export default function ProgressView({ history, program, colors, profile }) {
       {days.map(([dayId, d]) => {
         // Timed holds (planks, etc.) don't have a meaningful weight x reps
         // volume number, so they're left out of the lift-by-lift charts.
-        const exList = d.exercises.filter((ex) => !ex.timed);
+        const exList = d.exercises.filter((ex) => !ex.timed && !ex.repsOnly);
         if (exList.length === 0) return null;
         return (
           <div key={dayId} className="mb-5">
@@ -63,13 +63,14 @@ export default function ProgressView({ history, program, colors, profile }) {
               {d.label} — {d.title.toUpperCase()}
             </div>
             {exList.map((ex) => {
+              // Only sessions where this lift was actually in the plan (Short
+              // weeks skip some), so skipped days don't show as zero bars.
               const points = chronological
                 .filter((h) => h.dayId === dayId)
+                .map((h) => ({ h, entry: (h.exercises || []).find((e) => e.id === ex.id) }))
+                .filter((x) => x.entry)
                 .slice(-6)
-                .map((h) => {
-                  const entry = (h.exercises || []).find((e) => e.id === ex.id);
-                  return { label: formatShortDate(h.date), value: entry ? entry.volume : 0 };
-                });
+                .map(({ h, entry }) => ({ label: formatShortDate(h.date), value: entry.volume }));
               const latest = points.length ? points[points.length - 1].value : 0;
               return (
                 <div key={ex.id} className="py-2 ruled-row">

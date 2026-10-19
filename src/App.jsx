@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Check, Dumbbell, ChevronRight, RotateCcw, Loader2, ChevronDown, Plus, Trash2 } from "lucide-react";
-import { PROGRAM, COLORS } from "./data/program.js";
+import { PROGRAM, COLORS, exercisesFor, titleSuffix } from "./data/program.js";
 import { storage } from "./lib/storage.js";
 import { listProfiles, saveProfiles, getCurrentProfileId, setCurrentProfileId, makeProfileId } from "./lib/profiles.js";
 import ProgressView from "./components/ProgressView.jsx";
@@ -72,6 +72,7 @@ export default function App() {
   const [stampVisible, setStampVisible] = useState(false);
   const [error, setError] = useState(null);
   const [syncNote, setSyncNote] = useState("");
+  const [mode, setMode] = useState("full"); // "full" | "short"
 
   const currentProfile = profiles.find((p) => p.id === currentProfileId) || null;
 
@@ -149,7 +150,7 @@ export default function App() {
     }
   }
 
-  // Load this profile's history once we know who's active.
+  // Load this profile's history and Full/Short preference once we know who's active.
   useEffect(() => {
     if (!currentProfileId) return;
     (async () => {
@@ -159,8 +160,19 @@ export default function App() {
       } catch {
         setHistory([]);
       }
+      try {
+        const m = await storage.get(scopedKey(currentProfileId, "plan-mode"));
+        setMode(m && m.value === "short" ? "short" : "full");
+      } catch {
+        setMode("full");
+      }
     })();
   }, [currentProfileId]);
+
+  async function changeMode(next) {
+    setMode(next);
+    if (currentProfileId) await storage.set(scopedKey(currentProfileId, "plan-mode"), next);
+  }
 
   // Load active session whenever day or profile changes.
   useEffect(() => {
@@ -218,7 +230,10 @@ export default function App() {
     });
   }
 
-  const allSets = Object.values(exercises).flat();
+  // Only the exercises (and set counts) for the current Full/Short mode count.
+  const visible = exercisesFor(selectedDay, mode);
+  const setsFor = (ex) => (exercises[ex.id] || emptySets(ex.sets)).slice(0, ex.sets);
+  const allSets = visible.flatMap(setsFor);
   const doneCount = allSets.filter((s) => s.done).length;
   const totalCount = allSets.length;
   const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
@@ -228,8 +243,8 @@ export default function App() {
 
     // Per-exercise breakdown so the Progress view can chart trends per lift,
     // not just a single total-volume number for the whole session.
-    const exerciseBreakdown = day.exercises.map((ex) => {
-      const sets = exercises[ex.id] || [];
+    const exerciseBreakdown = visible.map((ex) => {
+      const sets = setsFor(ex);
       const completed = sets.filter((s) => s.done);
       const volume = completed.reduce((sum, s) => {
         const w = parseFloat(s.weight) || 0;
@@ -251,10 +266,10 @@ export default function App() {
     // Every completed set, kept in history so it can be sent to Google Sheets
     // (one row per set) and shown back later.
     const loggedSets = [];
-    day.exercises.forEach((ex) => {
-      (exercises[ex.id] || []).forEach((s, i) => {
+    visible.forEach((ex) => {
+      setsFor(ex).forEach((s, i) => {
         if (!s.done) return;
-        const w = parseFloat(s.weight);
+        const w = ex.repsOnly || ex.timed ? NaN : parseFloat(s.weight);
         const r = parseFloat(s.reps);
         loggedSets.push({
           exerciseId: ex.id,
@@ -262,7 +277,7 @@ export default function App() {
           setNumber: i + 1,
           weight: Number.isFinite(w) ? w : "",
           reps: ex.timed ? s.reps : Number.isFinite(r) ? r : "",
-          volume: ex.timed ? 0 : Math.round((Number.isFinite(w) ? w : 0) * (Number.isFinite(r) ? r : 0)),
+          volume: ex.timed || ex.repsOnly ? 0 : Math.round((Number.isFinite(w) ? w : 0) * (Number.isFinite(r) ? r : 0)),
         });
       });
     });
@@ -278,6 +293,7 @@ export default function App() {
       volume: Math.round(volume),
       exercises: exerciseBreakdown,
       sets: loggedSets,
+      mode,
     };
 
     const nextHistory = [summary, ...history].slice(0, 200);
@@ -528,6 +544,22 @@ export default function App() {
               <span className="text-xs tabular-nums" style={{ color: COLORS.inkFaint }}>
                 {doneCount}/{totalCount} SETS
               </span>
+              <div className="flex shrink-0" style={{ border: `1px solid ${COLORS.line}` }}>
+                {["full", "short"].map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => changeMode(m)}
+                    className="text-[10px] px-2 py-1 tracking-wider"
+                    aria-pressed={mode === m}
+                    style={{
+                      background: mode === m ? COLORS.ink : "transparent",
+                      color: mode === m ? COLORS.paper : COLORS.inkFaint,
+                    }}
+                  >
+                    {m.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Exercises */}
@@ -537,15 +569,22 @@ export default function App() {
                   <Loader2 className="animate-spin" size={20} color={COLORS.inkFaint} />
                 </div>
               ) : (
-                day.exercises.map((ex) => {
-                  const sets = exercises[ex.id] || emptySets(ex.sets);
+                visible.map((ex) => {
+                  const sets = setsFor(ex);
                   const exDone = sets.every((s) => s.done);
+                  const suffix = titleSuffix(ex, visible);
                   return (
                     <div key={ex.id} className="py-3 ruled-row">
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <div className="text-sm font-semibold" style={{ color: COLORS.ink }}>
                             {ex.name}
+                            {suffix && (
+                              <span className="font-normal text-xs" style={{ color: COLORS.olive }}>
+                                {" "}
+                                {suffix}
+                              </span>
+                            )}
                             {ex.tags && ex.tags.includes("vmo") && (
                               <span
                                 className="ml-2 align-middle text-[9px] px-1 py-0.5 tracking-wider"
@@ -581,7 +620,17 @@ export default function App() {
                             <span className="text-[11px] w-10" style={{ color: COLORS.inkFaint }}>
                               SET {idx + 1}
                             </span>
-                            {!ex.timed ? (
+                            {ex.repsOnly ? (
+                              <input
+                                type="number"
+                                inputMode="numeric"
+                                placeholder={`${ex.reps} reps`}
+                                value={s.reps}
+                                onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
+                                className="w-24 text-sm px-1.5 py-1 bg-transparent"
+                                style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
+                              />
+                            ) : !ex.timed ? (
                               <>
                                 <input
                                   type="number"
@@ -618,6 +667,15 @@ export default function App() {
                     </div>
                   );
                 })
+              )}
+
+              {!loading && day.cooldown && (
+                <div className="py-3 text-[11px]" style={{ color: COLORS.inkFaint }}>
+                  <span className="stencil text-sm mr-2" style={{ color: COLORS.ink }}>
+                    COOL-DOWN
+                  </span>
+                  {day.cooldown}
+                </div>
               )}
 
               {stampVisible && (

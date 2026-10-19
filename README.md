@@ -49,7 +49,15 @@ maceta/
 
 ## Editing your workout program
 
-Open `src/data/program.js`. Each day is a key (`day1`, `day2`, `day3`, ...) with a `label`, `title`, and `exercises` array. Add, remove, or edit exercises there — no other file needs to change. Set `timed: true` on an exercise to get a text input (e.g. "30-45s") instead of weight/reps number fields.
+Open `src/data/program.js`. Each day is a key (`day1`, `day2`, `day3`, ...) with a `label`, `title`, `cooldown`, and `exercises` array, listed in the order you do them. Add, remove, or edit exercises there — no other file needs to change. Optional exercise fields (documented at the top of the file):
+
+- `timed: true` — time input (e.g. "40s") instead of weight/reps; `repsOnly: true` — reps only (bands/bodyweight)
+- `superset: "A1"` — shows "(Superset A1)" in the title; partners share the letter and sit next to each other
+- `filler: "between bench sets"` — done during another lift's rest
+- `short: false` / `shortSets: 2` — hide the exercise, or use fewer sets, in **Short** mode
+- `tags: ["vmo"]` — VMO badge (the app warns in the console if no exercise has it)
+
+**Full / Short:** the toggle next to the set counter switches plans per profile. Short drops the optional accessories (Lat Pulldown, Plank, Pallof, Dead Bug) and trims incline press to 2 sets while keeping all back and VMO work.
 
 ## Local development
 
