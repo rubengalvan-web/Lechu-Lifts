@@ -123,6 +123,7 @@ export default function ProgressView({ history, program, colors, profile }) {
                 </div>
                 <div style={{ color: colors.ink }}>
                   {h.setsCompleted}/{h.totalSets} sets · {h.volume} lb vol
+                  {h.durationMin ? ` · ${h.durationMin} min` : ""}
                 </div>
               </div>
             ))}

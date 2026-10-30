@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Check, Dumbbell, ChevronRight, RotateCcw, Loader2, ChevronDown, Plus, Trash2 } from "lucide-react";
-import { PROGRAM, COLORS, exercisesFor, titleSuffix } from "./data/program.js";
+import {
+  PROGRAM,
+  COLORS,
+  exercisesFor,
+  titleSuffix,
+  restFor,
+  restLabel,
+  nextUp,
+  TARGET_MINUTES,
+} from "./data/program.js";
+import RestBar, { fmtClock } from "./components/RestBar.jsx";
 import { storage } from "./lib/storage.js";
 import { listProfiles, saveProfiles, getCurrentProfileId, setCurrentProfileId, makeProfileId } from "./lib/profiles.js";
 import ProgressView from "./components/ProgressView.jsx";
@@ -74,6 +84,29 @@ export default function App() {
   const [syncNote, setSyncNote] = useState("");
   const [mode, setMode] = useState("full"); // "full" | "short"
 
+  // --- Timers ---
+  const [sessionStart, setSessionStart] = useState(null); // ms timestamp of first checked set
+  const [rest, setRest] = useState(null); // { endsAt, next, buzzed }
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!sessionStart && !rest) return undefined;
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [sessionStart, rest]);
+
+  // Buzz once when rest is up (Android; iPhones ignore vibrate), then clear
+  // the GO bar a few seconds later.
+  useEffect(() => {
+    if (!rest) return;
+    if (!rest.buzzed && now >= rest.endsAt) {
+      if (navigator.vibrate) navigator.vibrate(300);
+      setRest((r) => (r ? { ...r, buzzed: true } : r));
+    }
+    if (now - rest.endsAt > 6000) setRest(null);
+  }, [now, rest]);
+
   const currentProfile = profiles.find((p) => p.id === currentProfileId) || null;
 
   // Load profile list + whichever profile was last active, once on mount.
@@ -142,7 +175,9 @@ export default function App() {
     await storage.delete(scopedKey(id, "history"));
     for (const dayId of Object.keys(PROGRAM)) {
       await storage.delete(scopedKey(id, `active-session:${dayId}`));
+      await storage.delete(scopedKey(id, `session-start:${dayId}`));
     }
+    await storage.delete(scopedKey(id, "plan-mode"));
     if (currentProfileId === id) {
       const fallback = next[0].id;
       setCurrentProfileIdState(fallback);
@@ -179,11 +214,14 @@ export default function App() {
     if (!currentProfileId) return;
     let cancelled = false;
     setLoading(true);
+    setRest(null);
     (async () => {
       try {
         const res = await storage.get(scopedKey(currentProfileId, `active-session:${selectedDay}`));
+        const started = await storage.get(scopedKey(currentProfileId, `session-start:${selectedDay}`));
         if (!cancelled) {
           setExercises(mergeWithDefaults(res ? JSON.parse(res.value) : null, selectedDay));
+          setSessionStart(started ? Number(started.value) : null);
         }
       } catch {
         if (!cancelled) setExercises(emptyExercises(selectedDay));
@@ -219,7 +257,32 @@ export default function App() {
     });
   }
 
+  // Starts the session clock on the first checked set, and the rest countdown
+  // for the exercise that was just finished.
+  function onSetDone(exId, idx) {
+    if (!sessionStart) {
+      const t = Date.now();
+      setSessionStart(t);
+      storage.set(scopedKey(currentProfileId, `session-start:${selectedDay}`), String(t));
+    }
+    const ex = visible.find((e) => e.id === exId);
+    if (!ex) return;
+    const seconds = restFor(ex, visible);
+    if (seconds === null) return; // fillers happen during other rests
+    const nx = nextUp(ex, idx, visible);
+    setNow(Date.now());
+    setRest({ endsAt: Date.now() + seconds * 1000, next: nx ? nx.name : "Log workout", buzzed: false });
+  }
+
+  async function clearSessionClock() {
+    setSessionStart(null);
+    setRest(null);
+    await storage.delete(scopedKey(currentProfileId, `session-start:${selectedDay}`));
+  }
+
   function toggleDone(exId, idx) {
+    const wasDone = Boolean((exercises[exId] || [])[idx]?.done);
+    if (!wasDone) onSetDone(exId, idx);
     setExercises((prev) => {
       const next = {
         ...prev,
@@ -294,7 +357,9 @@ export default function App() {
       exercises: exerciseBreakdown,
       sets: loggedSets,
       mode,
+      durationMin: sessionStart ? Math.round((Date.now() - sessionStart) / 60000) : null,
     };
+    clearSessionClock();
 
     const nextHistory = [summary, ...history].slice(0, 200);
     setHistory(nextHistory);
@@ -333,7 +398,11 @@ export default function App() {
     const fresh = emptyExercises(selectedDay);
     setExercises(fresh);
     persist(selectedDay, fresh);
+    clearSessionClock();
   }
+
+  const elapsedSec = sessionStart ? (now - sessionStart) / 1000 : 0;
+  const overTarget = elapsedSec > TARGET_MINUTES * 60;
 
   const day = PROGRAM[selectedDay];
 
@@ -562,6 +631,21 @@ export default function App() {
               </div>
             </div>
 
+            {/* Session clock */}
+            <div
+              className="px-5 py-2 flex items-center justify-between text-[11px] tracking-wider"
+              style={{ borderBottom: `1px solid ${COLORS.line}`, color: COLORS.inkFaint }}
+            >
+              <span>SESSION</span>
+              {sessionStart ? (
+                <span className="tabular-nums" style={{ color: overTarget ? COLORS.rust : COLORS.ink }}>
+                  {fmtClock(elapsedSec)} / {TARGET_MINUTES}:00
+                </span>
+              ) : (
+                <span>starts at your first set · target {TARGET_MINUTES} min</span>
+              )}
+            </div>
+
             {/* Exercises */}
             <div className="px-5 py-2 relative">
               {loading ? (
@@ -596,6 +680,7 @@ export default function App() {
                           </div>
                           <div className="text-[11px]" style={{ color: COLORS.inkFaint }}>
                             {ex.note} · target {ex.reps}
+                            {restLabel(ex, visible) && ` · ${restLabel(ex, visible)}`}
                           </div>
                         </div>
                         {exDone && <Check size={16} color={COLORS.olive} />}
@@ -728,6 +813,8 @@ export default function App() {
                 LOG WORKOUT <ChevronRight size={16} />
               </button>
             </div>
+            {rest && <div style={{ height: 88 }} aria-hidden="true" />}
+            <RestBar rest={rest} now={now} colors={COLORS} onSkip={() => setRest(null)} />
           </>
         )}
       </div>

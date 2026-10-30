@@ -57,6 +57,8 @@ Open `src/data/program.js`. Each day is a key (`day1`, `day2`, `day3`, ...) with
 - `short: false` / `shortSets: 2` — hide the exercise, or use fewer sets, in **Short** mode
 - `tags: ["vmo"]` — VMO badge (the app warns in the console if no exercise has it)
 
+**Time budget:** each day is capped at 4 blocks (a straight-set main lift or a superset ≈ 10 min) to keep lifting at ~40–45 min. Rest rules are automatic: `main: true` lifts 2 min, other straight sets 90s, supersets no rest between partners and 75s after each round, fillers none. Each exercise note shows its rest. The **session clock** starts at your first checked set and turns red past 45:00; checking a set starts a **rest countdown** bar at the bottom (with what's next and a Skip button). Session length is saved in history.
+
 **Full / Short:** the toggle next to the set counter switches plans per profile. Short drops the optional accessories (Lat Pulldown, Plank, Pallof, Dead Bug) and trims incline press to 2 sets while keeping all back and VMO work.
 
 ## Local development

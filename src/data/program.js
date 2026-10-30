@@ -11,6 +11,7 @@
 //   superset: "A1"    -> shown as "(Superset A1)" in the title. Partners share
 //                        the letter and sit next to each other in the list.
 //   filler: "..."     -> done during another lift's rest, e.g. "between bench sets"
+//   main: true        -> main lift: 2 min rest (other straight sets get 90s)
 //   short: false      -> hidden in Short mode
 //   shortSets: 2      -> number of sets in Short mode
 //
@@ -33,8 +34,8 @@ export const PROGRAM = {
         tags: ["vmo"],
         filler: "between squat warm-up sets",
       },
-      { id: "sq_back-squat", name: "Back Squat (or Goblet Squat)", sets: 3, reps: "8–10", note: "Main lift · straight sets" },
-      { id: "sq_bench", name: "Flat Bench Press (or Push-ups)", sets: 3, reps: "8–12", note: "Main lift · straight sets" },
+      { id: "sq_back-squat", name: "Back Squat (or Goblet Squat)", sets: 3, reps: "8–10", note: "Main lift", main: true },
+      { id: "sq_bench", name: "Flat Bench Press (or Push-ups)", sets: 3, reps: "8–12", note: "Main lift", main: true },
       {
         id: "sq_pullapart",
         name: "Band Pull-Aparts",
@@ -79,7 +80,16 @@ export const PROGRAM = {
     title: "Hinge + Back",
     cooldown: CHEST_COOLDOWN,
     exercises: [
-      { id: "hg_rdl", name: "Romanian Deadlift", sets: 3, reps: "8–10", note: "Main lift · straight sets" },
+      { id: "hg_rdl", name: "Romanian Deadlift", sets: 3, reps: "8–10", note: "Main lift", main: true },
+      {
+        id: "hg_pullapart",
+        name: "Band Pull-Aparts",
+        sets: 3,
+        reps: "15",
+        note: "Rear delts / upper back",
+        repsOnly: true,
+        filler: "between RDL sets",
+      },
       {
         id: "hg_neutralpull",
         name: "Neutral-Grip Pulldown (or Chin-ups)",
@@ -87,21 +97,12 @@ export const PROGRAM = {
         reps: "8–12",
         note: "Back first today · vertical pull",
       },
-      { id: "hg_row", name: "Single-Arm Dumbbell Row", sets: 3, reps: "8–12/side", note: "Horizontal pull — back thickness" },
       {
-        id: "hg_incline",
-        name: "Incline Dumbbell Press",
+        id: "hg_row",
+        name: "Single-Arm Dumbbell Row",
         sets: 3,
-        reps: "8–12",
-        note: "Chest · straight sets",
-        shortSets: 2,
-      },
-      {
-        id: "hg_reardelt",
-        name: "Reverse Fly (dumbbell)",
-        sets: 3,
-        reps: "12–15",
-        note: "Rear delts / upper back · by the rack",
+        reps: "8–12/side",
+        note: "Back thickness · bench by the rack",
         superset: "A1",
       },
       {
@@ -115,12 +116,21 @@ export const PROGRAM = {
         superset: "A2",
       },
       {
+        id: "hg_incline",
+        name: "Incline Dumbbell Press",
+        sets: 3,
+        reps: "8–12",
+        note: "Chest",
+        superset: "B1",
+        shortSets: 2,
+      },
+      {
         id: "hg_pallof",
         name: "Pallof Press (band)",
         sets: 3,
         reps: "10/side",
         note: "Anti-rotation core · band on the rack",
-        superset: "A3",
+        superset: "B2",
         short: false,
       },
     ],
@@ -130,8 +140,8 @@ export const PROGRAM = {
     title: "Full-Body Power",
     cooldown: CHEST_COOLDOWN,
     exercises: [
-      { id: "pw_deadlift", name: "Trap Bar / Conventional Deadlift", sets: 3, reps: "6–8", note: "Main lift · straight sets" },
-      { id: "pw_cablerow", name: "Seated Cable Row", sets: 3, reps: "8–12", note: "Main pull · straight sets" },
+      { id: "pw_deadlift", name: "Trap Bar / Conventional Deadlift", sets: 3, reps: "6–8", note: "Main lift", main: true },
+      { id: "pw_cablerow", name: "Seated Cable Row", sets: 3, reps: "8–12", note: "Main pull" },
       {
         id: "pw_stepup",
         name: "Step-ups (weighted)",
@@ -182,6 +192,47 @@ export function titleSuffix(ex, visible) {
   if (ex.filler) return `(${ex.filler})`;
   return "";
 }
+
+// --- Rest rules (keep sessions at ~40–45 min of lifting) -------------------
+// Main lifts 2 min · straight accessories 90s · supersets: no rest between
+// partners, 75s after each full round · fillers: none (done during rests).
+function supersetGroup(ex, visible) {
+  if (!ex.superset) return null;
+  const group = visible.filter((e) => e.superset && e.superset[0] === ex.superset[0]);
+  return group.length > 1 ? group : null;
+}
+
+export function restFor(ex, visible) {
+  if (ex.filler) return null;
+  const group = supersetGroup(ex, visible);
+  if (group) return group[group.length - 1].id === ex.id ? 75 : 0;
+  return ex.main ? 120 : 90;
+}
+
+export function restLabel(ex, visible) {
+  const r = restFor(ex, visible);
+  if (r === null) return "";
+  if (r === 0) return "no rest — go to partner";
+  if (r === 75) return "rest 75s after round";
+  return r === 120 ? "rest 2 min" : "rest 90s";
+}
+
+// What to do after finishing set `setIdx` of `ex` (for the rest bar).
+export function nextUp(ex, setIdx, visible) {
+  const group = supersetGroup(ex, visible);
+  if (group) {
+    const gi = group.findIndex((e) => e.id === ex.id);
+    if (gi < group.length - 1) return group[gi + 1];
+    if (setIdx + 1 < group[0].sets) return group[0];
+    const lastIdx = visible.findIndex((e) => e.id === ex.id);
+    return visible.slice(lastIdx + 1).find((e) => !e.filler) || null;
+  }
+  if (setIdx + 1 < ex.sets) return ex;
+  const i = visible.findIndex((e) => e.id === ex.id);
+  return visible.slice(i + 1).find((e) => !e.filler) || null;
+}
+
+export const TARGET_MINUTES = 45;
 
 // Startup check: the plan should always include at least one VMO exercise.
 const hasVmo = Object.values(PROGRAM).some((d) => d.exercises.some((e) => e.tags && e.tags.includes("vmo")));
