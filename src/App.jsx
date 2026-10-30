@@ -423,13 +423,13 @@ export default function App() {
   if (!profilesLoading && profiles.length === 0) {
     return (
       <div
-        className="min-h-screen w-full flex justify-center items-center px-3 py-6"
+        className="min-h-screen w-full flex justify-center items-center px-3 py-6 safe-top"
         style={{ background: COLORS.paperDark, fontFamily: "'IBM Plex Mono', monospace", color: COLORS.ink }}
       >
         <style>{sharedStyle}</style>
         <div className="w-full max-w-md p-6" style={{ background: COLORS.paper, border: `1px solid ${COLORS.line}` }}>
-          <h1 className="stencil text-4xl mb-1">MACETA</h1>
-          <p className="text-xs mb-4" style={{ color: COLORS.inkFaint }}>
+          <h1 className="stencil text-5xl mb-1">MACETA</h1>
+          <p className="text-sm mb-4" style={{ color: COLORS.inkFaint }}>
             Who's logging?
           </p>
           <input
@@ -438,13 +438,13 @@ export default function App() {
             value={newProfileName}
             onChange={(e) => setNewProfileName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && createProfile(newProfileName)}
-            className="w-full text-sm px-3 py-2 mb-3 bg-transparent"
+            className="w-full text-base px-3 py-2 mb-3 bg-transparent"
             style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
             autoFocus
           />
           <button
             onClick={() => createProfile(newProfileName)}
-            className="w-full stencil text-lg py-2.5"
+            className="w-full stencil text-xl py-2.5"
             style={{ background: COLORS.olive, color: COLORS.paper }}
           >
             START LOGGING
@@ -456,7 +456,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen w-full flex justify-center px-3 py-6"
+      className="min-h-screen w-full flex justify-center px-3 py-6 safe-top"
       style={{
         background: COLORS.paperDark,
         fontFamily: "'IBM Plex Mono', monospace",
@@ -471,7 +471,7 @@ export default function App() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Dumbbell size={18} color={COLORS.olive} />
-              <span className="text-xs tracking-widest" style={{ color: COLORS.inkFaint }}>
+              <span className="text-sm tracking-widest" style={{ color: COLORS.inkFaint }}>
                 {todayLabel()}
               </span>
             </div>
@@ -480,7 +480,7 @@ export default function App() {
               <div className="relative">
                 <button
                   onClick={() => setProfileMenuOpen((v) => !v)}
-                  className="flex items-center gap-1 text-xs px-2 py-1"
+                  className="flex items-center gap-1 text-sm px-2 py-1"
                   style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                 >
                   {currentProfile?.name || "…"} <ChevronDown size={12} />
@@ -493,7 +493,7 @@ export default function App() {
                     {profiles.map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between text-xs"
+                        className="flex items-center justify-between text-sm"
                         style={{
                           background: p.id === currentProfileId ? COLORS.paperDark : "transparent",
                           borderBottom: `1px dashed ${COLORS.line}`,
@@ -526,12 +526,12 @@ export default function App() {
                         value={newProfileName}
                         onChange={(e) => setNewProfileName(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && createProfile(newProfileName)}
-                        className="flex-1 text-xs px-2 py-1 bg-transparent min-w-0"
+                        className="flex-1 text-sm px-2 py-1 bg-transparent min-w-0"
                         style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                       />
                       <button
                         onClick={() => createProfile(newProfileName)}
-                        className="text-xs px-2 shrink-0"
+                        className="text-sm px-2 shrink-0"
                         aria-label="Add profile"
                         style={{ border: `1px solid ${COLORS.line}`, color: COLORS.olive }}
                       >
@@ -543,10 +543,10 @@ export default function App() {
               </div>
             </div>
           </div>
-          <h1 className="stencil text-4xl leading-none mt-2" style={{ color: COLORS.ink }}>
+          <h1 className="stencil text-5xl leading-none mt-2" style={{ color: COLORS.ink }}>
             MACETA
           </h1>
-          <p className="text-xs mt-1" style={{ color: COLORS.inkFaint }}>
+          <p className="text-sm mt-1" style={{ color: COLORS.inkFaint }}>
             4-week full-body program · 3 sessions/week
           </p>
         </div>
@@ -555,7 +555,7 @@ export default function App() {
         <div className="flex" style={{ borderBottom: `1px solid ${COLORS.line}` }}>
           <button
             onClick={() => setView("log")}
-            className="flex-1 py-2 stencil text-base tracking-wide"
+            className="flex-1 py-2 stencil text-lg tracking-wide"
             style={{
               background: view === "log" ? COLORS.ink : "transparent",
               color: view === "log" ? COLORS.paper : COLORS.inkFaint,
@@ -566,7 +566,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setView("progress")}
-            className="flex-1 py-2 stencil text-base tracking-wide"
+            className="flex-1 py-2 stencil text-lg tracking-wide"
             style={{
               background: view === "progress" ? COLORS.ink : "transparent",
               color: view === "progress" ? COLORS.paper : COLORS.inkFaint,
@@ -595,8 +595,8 @@ export default function App() {
                       borderRight: i !== arr.length - 1 ? `1px solid ${COLORS.line}` : "none",
                     }}
                   >
-                    <div className="stencil text-lg leading-none">{d.label}</div>
-                    <div className="text-[10px] mt-0.5 tracking-wide">{d.title.toUpperCase()}</div>
+                    <div className="stencil text-xl leading-none">{d.label}</div>
+                    <div className="text-[11px] mt-0.5 tracking-wide">{d.title.toUpperCase()}</div>
                   </button>
                 );
               })}
@@ -610,7 +610,7 @@ export default function App() {
                   style={{ width: `${pct}%`, background: COLORS.olive }}
                 />
               </div>
-              <span className="text-xs tabular-nums" style={{ color: COLORS.inkFaint }}>
+              <span className="text-sm tabular-nums" style={{ color: COLORS.inkFaint }}>
                 {doneCount}/{totalCount} SETS
               </span>
               <div className="flex shrink-0" style={{ border: `1px solid ${COLORS.line}` }}>
@@ -618,7 +618,7 @@ export default function App() {
                   <button
                     key={m}
                     onClick={() => changeMode(m)}
-                    className="text-[10px] px-2 py-1 tracking-wider"
+                    className="text-[11px] px-2 py-1 tracking-wider"
                     aria-pressed={mode === m}
                     style={{
                       background: mode === m ? COLORS.ink : "transparent",
@@ -633,7 +633,7 @@ export default function App() {
 
             {/* Session clock */}
             <div
-              className="px-5 py-2 flex items-center justify-between text-[11px] tracking-wider"
+              className="px-5 py-2 flex items-center justify-between text-xs tracking-wider"
               style={{ borderBottom: `1px solid ${COLORS.line}`, color: COLORS.inkFaint }}
             >
               <span>SESSION</span>
@@ -646,6 +646,34 @@ export default function App() {
               )}
             </div>
 
+            {/* What Full vs Short means for this day */}
+            <div
+              className="px-5 py-2 text-xs"
+              style={{ borderBottom: `1px solid ${COLORS.line}`, color: COLORS.inkFaint }}
+            >
+              {mode === "full" ? (
+                <>
+                  <span style={{ color: COLORS.ink }}>FULL plan</span> · the complete workout, ~40–45 min. Busy
+                  day? Switch to SHORT.
+                </>
+              ) : (
+                <>
+                  <span style={{ color: COLORS.ink }}>SHORT plan</span> · ~30–35 min for busy days. Skips{" "}
+                  {PROGRAM[selectedDay].exercises
+                    .filter((e) => e.short === false)
+                    .map((e) => e.name.split(" (")[0])
+                    .join(", ") || "nothing"}
+                  {PROGRAM[selectedDay].exercises.some((e) => e.shortSets)
+                    ? `; fewer sets of ${PROGRAM[selectedDay].exercises
+                        .filter((e) => e.shortSets)
+                        .map((e) => e.name.split(" (")[0])
+                        .join(", ")}`
+                    : ""}
+                  . Back and knee work stay.
+                </>
+              )}
+            </div>
+
             {/* Exercises */}
             <div className="px-5 py-2 relative">
               {loading ? (
@@ -653,7 +681,7 @@ export default function App() {
                   <Loader2 className="animate-spin" size={20} color={COLORS.inkFaint} />
                 </div>
               ) : (
-                visible.map((ex) => {
+                visible.map((ex, exIdx) => {
                   const sets = setsFor(ex);
                   const exDone = sets.every((s) => s.done);
                   const suffix = titleSuffix(ex, visible);
@@ -661,24 +689,24 @@ export default function App() {
                     <div key={ex.id} className="py-3 ruled-row">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <div className="text-sm font-semibold" style={{ color: COLORS.ink }}>
-                            {ex.name}
+                          <div className="text-base font-semibold" style={{ color: COLORS.ink }}>
+                            {exIdx + 1}. {ex.name}
                             {suffix && (
-                              <span className="font-normal text-xs" style={{ color: COLORS.olive }}>
+                              <span className="font-normal text-sm" style={{ color: COLORS.olive }}>
                                 {" "}
                                 {suffix}
                               </span>
                             )}
                             {ex.tags && ex.tags.includes("vmo") && (
                               <span
-                                className="ml-2 align-middle text-[9px] px-1 py-0.5 tracking-wider"
+                                className="ml-2 align-middle text-[10px] px-1 py-0.5 tracking-wider"
                                 style={{ border: `1px solid ${COLORS.rust}`, color: COLORS.rust }}
                               >
                                 VMO
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px]" style={{ color: COLORS.inkFaint }}>
+                          <div className="text-xs" style={{ color: COLORS.inkFaint }}>
                             {ex.note} · target {ex.reps}
                             {restLabel(ex, visible) && ` · ${restLabel(ex, visible)}`}
                           </div>
@@ -702,7 +730,7 @@ export default function App() {
                             >
                               {s.done && <Check size={14} color={COLORS.paper} />}
                             </button>
-                            <span className="text-[11px] w-10" style={{ color: COLORS.inkFaint }}>
+                            <span className="text-xs w-10" style={{ color: COLORS.inkFaint }}>
                               SET {idx + 1}
                             </span>
                             {ex.repsOnly ? (
@@ -712,7 +740,7 @@ export default function App() {
                                 placeholder={`${ex.reps} reps`}
                                 value={s.reps}
                                 onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
-                                className="w-24 text-sm px-1.5 py-1 bg-transparent"
+                                className="w-24 text-base px-1.5 py-1 bg-transparent"
                                 style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                               />
                             ) : !ex.timed ? (
@@ -723,7 +751,7 @@ export default function App() {
                                   placeholder="lb"
                                   value={s.weight}
                                   onChange={(e) => updateSet(ex.id, idx, "weight", e.target.value)}
-                                  className="w-16 text-sm px-1.5 py-1 bg-transparent"
+                                  className="w-16 text-base px-1.5 py-1 bg-transparent"
                                   style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                                 />
                                 <input
@@ -732,7 +760,7 @@ export default function App() {
                                   placeholder={ex.reps}
                                   value={s.reps}
                                   onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
-                                  className="w-16 text-sm px-1.5 py-1 bg-transparent"
+                                  className="w-16 text-base px-1.5 py-1 bg-transparent"
                                   style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                                 />
                               </>
@@ -742,7 +770,7 @@ export default function App() {
                                 placeholder={ex.reps}
                                 value={s.reps}
                                 onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
-                                className="w-24 text-sm px-1.5 py-1 bg-transparent"
+                                className="w-24 text-base px-1.5 py-1 bg-transparent"
                                 style={{ border: `1px solid ${COLORS.line}`, color: COLORS.ink }}
                               />
                             )}
@@ -755,8 +783,8 @@ export default function App() {
               )}
 
               {!loading && day.cooldown && (
-                <div className="py-3 text-[11px]" style={{ color: COLORS.inkFaint }}>
-                  <span className="stencil text-sm mr-2" style={{ color: COLORS.ink }}>
+                <div className="py-3 text-xs" style={{ color: COLORS.inkFaint }}>
+                  <span className="stencil text-base mr-2" style={{ color: COLORS.ink }}>
                     COOL-DOWN
                   </span>
                   {day.cooldown}
@@ -766,7 +794,7 @@ export default function App() {
               {stampVisible && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div
-                    className="stamp-enter stencil px-6 py-2 text-3xl"
+                    className="stamp-enter stencil px-6 py-2 text-4xl"
                     style={{
                       color: COLORS.rust,
                       border: `4px double ${COLORS.rust}`,
@@ -781,12 +809,12 @@ export default function App() {
             </div>
 
             {error && (
-              <div className="px-5 pb-2 text-[11px]" style={{ color: COLORS.rust }}>
+              <div className="px-5 pb-2 text-xs" style={{ color: COLORS.rust }}>
                 {error}
               </div>
             )}
             {syncNote && (
-              <div className="px-5 pb-2 text-[11px]" style={{ color: COLORS.olive }}>
+              <div className="px-5 pb-2 text-xs" style={{ color: COLORS.olive }}>
                 {syncNote}
               </div>
             )}
@@ -795,7 +823,7 @@ export default function App() {
             <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: `1px solid ${COLORS.line}` }}>
               <button
                 onClick={resetDay}
-                className="flex items-center gap-1.5 text-xs px-3 py-2"
+                className="flex items-center gap-1.5 text-sm px-3 py-2"
                 style={{ color: COLORS.inkFaint, border: `1px solid ${COLORS.line}` }}
               >
                 <RotateCcw size={12} /> RESET
@@ -803,7 +831,7 @@ export default function App() {
               <button
                 onClick={completeWorkout}
                 disabled={doneCount === 0}
-                className="flex-1 stencil text-lg py-2.5 flex items-center justify-center gap-2"
+                className="flex-1 stencil text-xl py-2.5 flex items-center justify-center gap-2"
                 style={{
                   background: doneCount === 0 ? COLORS.line : COLORS.olive,
                   color: COLORS.paper,
@@ -813,7 +841,7 @@ export default function App() {
                 LOG WORKOUT <ChevronRight size={16} />
               </button>
             </div>
-            {rest && <div style={{ height: 88 }} aria-hidden="true" />}
+            {rest && <div style={{ height: 104 }} aria-hidden="true" />}
             <RestBar rest={rest} now={now} colors={COLORS} onSkip={() => setRest(null)} />
           </>
         )}

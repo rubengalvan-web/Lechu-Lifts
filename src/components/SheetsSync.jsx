@@ -57,7 +57,7 @@ export default function SheetsSync({ history, profile, colors }) {
     <div className="pt-4 mt-4" style={{ borderTop: `2px solid ${colors.ink}` }}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-xs tracking-widest w-full text-left"
+        className="flex items-center gap-1 text-sm tracking-widest w-full text-left"
         style={{ color: colors.inkFaint }}
       >
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
@@ -71,7 +71,7 @@ export default function SheetsSync({ history, profile, colors }) {
             placeholder="Web app URL (ends in /exec)"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="w-full text-xs px-2 py-1.5 bg-transparent"
+            className="w-full text-sm px-2 py-1.5 bg-transparent"
             style={field}
           />
           <input
@@ -79,14 +79,14 @@ export default function SheetsSync({ history, profile, colors }) {
             placeholder="Token (same as in your script)"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            className="w-full text-xs px-2 py-1.5 bg-transparent"
+            className="w-full text-sm px-2 py-1.5 bg-transparent"
             style={field}
           />
           <div className="flex gap-2">
             <button
               onClick={save}
               disabled={busy}
-              className="text-xs px-3 py-2"
+              className="text-sm px-3 py-2"
               style={{ border: `1px solid ${colors.line}`, color: colors.inkFaint }}
             >
               SAVE
@@ -94,7 +94,7 @@ export default function SheetsSync({ history, profile, colors }) {
             <button
               onClick={() => run(true)}
               disabled={busy}
-              className="flex-1 stencil text-base py-1.5"
+              className="flex-1 stencil text-lg py-1.5"
               style={{ background: colors.olive, color: colors.paper, opacity: busy ? 0.6 : 1 }}
             >
               {busy ? "SYNCING…" : "SYNC ALL HISTORY"}
@@ -104,18 +104,18 @@ export default function SheetsSync({ history, profile, colors }) {
             <button
               onClick={() => run(false)}
               disabled={busy}
-              className="text-[11px] underline"
+              className="text-xs underline"
               style={{ color: colors.inkFaint }}
             >
               Retry {queued} queued
             </button>
           )}
           {msg && (
-            <p className="text-[11px]" style={{ color: colors.inkFaint }}>
+            <p className="text-xs" style={{ color: colors.inkFaint }}>
               {msg}
             </p>
           )}
-          <p className="text-[10px] italic" style={{ color: colors.inkFaint }}>
+          <p className="text-[11px] italic" style={{ color: colors.inkFaint }}>
             New workouts sync automatically when you tap Log Workout. This URL and token stay on this device.
           </p>
         </div>

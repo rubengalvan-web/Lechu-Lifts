@@ -11,3 +11,9 @@ body,
 body {
   margin: 0;
 }
+
+/* Home-screen web app on iPhone draws under the status bar / camera notch
+   (viewport-fit=cover + translucent status bar), so push content below it. */
+.safe-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
+}

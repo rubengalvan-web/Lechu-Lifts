@@ -23,12 +23,12 @@ export default function RestBar({ rest, now, colors, onSkip }) {
         aria-live="polite"
       >
         <div className="min-w-0">
-          <div className="stencil text-2xl leading-none">{go ? "GO" : `REST ${fmtClock(remaining)}`}</div>
-          <div className="text-[11px] mt-1 truncate">Next: {rest.next}</div>
+          <div className="stencil text-3xl leading-none">{go ? "GO" : `REST ${fmtClock(remaining)}`}</div>
+          <div className="text-xs mt-1 truncate">Next: {rest.next}</div>
         </div>
         <button
           onClick={onSkip}
-          className="text-xs px-3 py-1.5 shrink-0 ml-3"
+          className="text-sm px-3 py-1.5 shrink-0 ml-3"
           style={{ border: `1px solid ${colors.paper}`, color: colors.paper }}
         >
           {go ? "CLOSE" : "SKIP"}

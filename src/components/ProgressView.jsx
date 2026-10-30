@@ -46,7 +46,7 @@ export default function ProgressView({ history, program, colors, profile }) {
   return (
     <div className="px-5 py-4">
       <div className="mb-5">
-        <div className="text-xs tracking-widest mb-2" style={{ color: colors.inkFaint }}>
+        <div className="text-sm tracking-widest mb-2" style={{ color: colors.inkFaint }}>
           TOTAL VOLUME · LAST 8 SESSIONS
         </div>
         <TrendChart points={overallPoints} color={colors.rust} inkFaint={colors.inkFaint} />
@@ -59,7 +59,7 @@ export default function ProgressView({ history, program, colors, profile }) {
         if (exList.length === 0) return null;
         return (
           <div key={dayId} className="mb-5">
-            <div className="stencil text-lg mb-2" style={{ color: colors.ink }}>
+            <div className="stencil text-xl mb-2" style={{ color: colors.ink }}>
               {d.label} — {d.title.toUpperCase()}
             </div>
             {exList.map((ex) => {
@@ -75,10 +75,10 @@ export default function ProgressView({ history, program, colors, profile }) {
               return (
                 <div key={ex.id} className="py-2 ruled-row">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-semibold" style={{ color: colors.ink }}>
+                    <span className="text-sm font-semibold" style={{ color: colors.ink }}>
                       {ex.name}
                     </span>
-                    <span className="text-[10px]" style={{ color: colors.inkFaint }}>
+                    <span className="text-[11px]" style={{ color: colors.inkFaint }}>
                       {latest} lb vol
                     </span>
                   </div>
@@ -92,13 +92,13 @@ export default function ProgressView({ history, program, colors, profile }) {
 
       <div className="pt-2" style={{ borderTop: `2px solid ${colors.ink}` }}>
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs tracking-widest" style={{ color: colors.inkFaint }}>
+          <div className="text-sm tracking-widest" style={{ color: colors.inkFaint }}>
             LOGGED SESSIONS
           </div>
           {history.length > 0 && (
             <button
               onClick={() => downloadCSV(history)}
-              className="flex items-center gap-1 text-[10px] px-2 py-1"
+              className="flex items-center gap-1 text-[11px] px-2 py-1"
               style={{ color: colors.inkFaint, border: `1px solid ${colors.line}` }}
             >
               <Download size={10} /> CSV
@@ -106,15 +106,15 @@ export default function ProgressView({ history, program, colors, profile }) {
           )}
         </div>
         {history.length === 0 ? (
-          <p className="text-xs italic" style={{ color: colors.inkFaint }}>
+          <p className="text-sm italic" style={{ color: colors.inkFaint }}>
             Nothing logged yet. Finish a session to start your record.
           </p>
         ) : (
           <div className="space-y-2">
             {history.slice(0, 8).map((h, i) => (
-              <div key={i} className="flex items-center justify-between text-xs py-1.5 ruled-row">
+              <div key={i} className="flex items-center justify-between text-sm py-1.5 ruled-row">
                 <div>
-                  <span className="stencil text-sm mr-2" style={{ color: colors.olive }}>
+                  <span className="stencil text-base mr-2" style={{ color: colors.olive }}>
                     {h.dayLabel}
                   </span>
                   <span style={{ color: colors.inkFaint }}>
